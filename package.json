@@ -1,6 +1,6 @@
 {
   "name": "@m-d-b-code/mcp-kit",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Shared foundation for MCP servers behind a gateway: authenticated stateless HTTP transport, env config, logging and job-run reporting",
   "keywords": [
     "mcp",
