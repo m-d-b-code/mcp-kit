@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.3
+
+- Built without source maps: the published files no longer point to maps the package does not
+  ship (Vite warned on loading `/offline`).
+
 ## 0.3.2
 
 - `vitest/valid-expect` accepts `expect(value, message)`, which vitest supports.

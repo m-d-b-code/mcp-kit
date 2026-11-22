@@ -1,4 +1,5 @@
 {
   "extends": "./tsconfig.base.json",
-  "compilerOptions": { "declaration": true }
+  // No source maps in the package: Vite warns on every map comment whose file is not shipped.
+  "compilerOptions": { "declaration": true, "sourceMap": false }
 }
