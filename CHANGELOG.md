@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+
+- `listen` waits for an asynchronous `onShutdown` before exiting, instead of exiting while it
+  runs (exit code 1 if it rejects).
+
 ## 0.2.0
 
 - `createBridgeServer` takes `routes`: extra paths behind the same token as `/mcp`, answered

@@ -146,8 +146,11 @@ export function createBridgeServer({
 export interface ListenOptions {
   host: string;
   port: number;
-  /** Run once the server has stopped accepting requests, before the process exits. */
-  onShutdown?: () => void;
+  /**
+   * Run once the server has stopped accepting requests; the process exits when it settles (code 1
+   * if it rejects), so an asynchronous close is not cut short.
+   */
+  onShutdown?: () => void | Promise<void>;
 }
 
 /** Listens, and closes cleanly on SIGINT / SIGTERM (`docker stop`). */
@@ -158,8 +161,12 @@ export async function listen(
   for (const signal of ["SIGINT", "SIGTERM"] as const) {
     process.once(signal, () =>
       server.close(() => {
-        onShutdown?.();
-        process.exit(0);
+        void Promise.resolve()
+          .then(onShutdown)
+          .then(
+            () => process.exit(0),
+            () => process.exit(1),
+          );
       }),
     );
   }
