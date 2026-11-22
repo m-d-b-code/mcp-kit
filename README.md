@@ -10,9 +10,8 @@ an internal network. Everything each such server used to copy lives here:
 - **HTTP transport**: `/mcp` behind a shared secret (`x-mcp-token` header, constant-time
   comparison), `/health` without one for the container healthcheck, a bounded request body (64 KiB
   by default), clean shutdown on `SIGTERM`. Stateless, JSON responses, one `McpServer` per request.
-- **Protocol revisions**: `2026-07-28`, with 2025-era clients still served statelessly unless
-  `legacy: "reject"` makes the server modern-only. The gateway can pin the same revision through
-  `/protocol`.
+- **Protocol revisions**: whatever the installed SDK speaks (`2026-07-28` today), with 2025-era
+  clients still served statelessly unless `legacy: "reject"` makes the server modern-only.
 - **Configuration** read from the environment: a clear error at startup, never a degraded mode.
 - **Logging** to stderr, its level set by a variable of the project's choosing.
 - **Job-run reporting**: a server's internal timer reports each run to the gateway, which can then
@@ -70,15 +69,17 @@ when the gateway only speaks `PROTOCOL_VERSION`.
 ## Gateway side
 
 `@m-d-b-code/mcp-kit/protocol` has no dependency at all, not even the SDK. A gateway imports the
-same constants as its servers, so the two ends cannot drift:
+same header name as its servers, so the two ends cannot drift:
 
 ```ts
-import { PROTOCOL_VERSION, TOKEN_HEADER } from "@m-d-b-code/mcp-kit/protocol";
+import { TOKEN_HEADER } from "@m-d-b-code/mcp-kit/protocol";
 
 const transport = new StreamableHTTPClientTransport(url, {
   requestInit: { headers: { [TOKEN_HEADER]: secret } },
 });
-const client = new Client(info, { versionNegotiation: { mode: { pin: PROTOCOL_VERSION } } });
+// "auto": the newest revision both sides speak, 2025 for a server that knows nothing newer.
+// `{ pin: PROTOCOL_VERSION }` instead, against servers started with `legacy: "reject"`.
+const client = new Client(info, { versionNegotiation: { mode: "auto" } });
 ```
 
 ## Job-run reporting
