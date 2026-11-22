@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2
+
+- `vitest/valid-expect` accepts `expect(value, message)`, which vitest supports.
+
 ## 0.3.1
 
 - `prefer-nullish-coalescing` leaves optional booleans alone: `flag || other` is logic, not a

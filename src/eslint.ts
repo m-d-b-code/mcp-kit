@@ -135,6 +135,8 @@ export function mcpProjectConfig({
         "@typescript-eslint/require-await": "off",
         // `expect.stringContaining()` is typed `any` by vitest.
         "@typescript-eslint/no-unsafe-assignment": "off",
+        // `expect(value, message)` names the failing case in a loop: vitest takes the message.
+        "vitest/valid-expect": ["error", { maxArgs: 2 }],
         // A silent logger or a no-op callback is a legitimate fake.
         "@typescript-eslint/no-empty-function": "off",
       },
