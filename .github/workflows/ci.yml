@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "renovate/**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # The kit runs the very workflow it offers, so a broken one shows here first.
+  check:
+    uses: ./.github/workflows/mcp-project.yml

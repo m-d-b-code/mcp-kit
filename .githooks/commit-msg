@@ -1,0 +1,17 @@
+#!/bin/sh
+# Conventional Commits subject: `type(scope)?!?: subject`.
+# Git's own merges, `fixup!`/`squash!` and `Revert "…"` pass as they are.
+set -e
+
+subject=$(sed -n '/^[^#]/{p;q;}' "$1")
+
+case "$subject" in
+  Merge\ * | Revert\ \"* | fixup!\ * | squash!\ * | amend!\ *) exit 0 ;;
+esac
+
+types='feat|fix|refactor|perf|test|docs|chore|style|build|ci|revert'
+if ! printf '%s\n' "$subject" | grep -Eq "^($types)(\([^)]+\))?!?: [^ ]"; then
+  echo "Commit subject does not follow Conventional Commits: \"$subject\"" >&2
+  echo "Expected: <$types>(scope)?: subject" >&2
+  exit 1
+fi

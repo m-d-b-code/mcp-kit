@@ -1,0 +1,2 @@
+# LF everywhere, whatever core.autocrlf says on the Windows machine that commits.
+* text=auto eol=lf

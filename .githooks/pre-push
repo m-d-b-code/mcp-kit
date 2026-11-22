@@ -1,0 +1,4 @@
+#!/bin/sh
+# The same check as CI, before anything leaves the machine.
+set -e
+npm run check

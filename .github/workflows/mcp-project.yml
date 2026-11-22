@@ -1,0 +1,53 @@
+# Reusable CI for an MCP server project: `npm ci`, then `npm run check`.
+#
+#   jobs:
+#     check:
+#       uses: m-d-b-code/mcp-kit/.github/workflows/mcp-project.yml@<sha> # vX.Y.Z
+#
+# The caller keeps its own triggers and concurrency group.
+name: MCP project
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        type: string
+        default: "26"
+      commit-status:
+        description: >-
+          Also report the result as a commit status of this name, on branches starting with
+          `status-branch-prefix`. For bots that read commit statuses but not check runs (a
+          self-hosted Renovate on a fine-grained token, for instance). The caller must then grant
+          `statuses: write`.
+        type: string
+        default: ""
+      status-branch-prefix:
+        type: string
+        default: "renovate/"
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - name: Report commit status
+        if: >-
+          (success() || failure()) && inputs.commit-status != '' &&
+          startsWith(github.ref_name, inputs.status-branch-prefix)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STATE: ${{ job.status }}
+          CONTEXT: ${{ inputs.commit-status }}
+        run: gh api "repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA" -f state="$STATE" -f context="$CONTEXT"

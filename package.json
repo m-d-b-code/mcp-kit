@@ -1,0 +1,90 @@
+{
+  "name": "@m-d-b-code/mcp-kit",
+  "version": "0.1.0",
+  "description": "Shared foundation for MCP servers behind a gateway: authenticated stateless HTTP transport, pinned protocol revision, env config, logging and job-run reporting",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mcp-server",
+    "gateway",
+    "streamable-http"
+  ],
+  "homepage": "https://github.com/m-d-b-code/mcp-kit#readme",
+  "bugs": {
+    "url": "https://github.com/m-d-b-code/mcp-kit/issues"
+  },
+  "license": "MIT",
+  "author": "m-d-b-code",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/m-d-b-code/mcp-kit.git"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=26"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.map",
+    "tsconfig.base.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./protocol": {
+      "types": "./dist/protocol.d.ts",
+      "default": "./dist/protocol.js"
+    },
+    "./eslint": {
+      "types": "./dist/eslint.d.ts",
+      "default": "./dist/eslint.js"
+    },
+    "./tsconfig.json": "./tsconfig.base.json"
+  },
+  "scripts": {
+    "prepare": "git config core.hooksPath .githooks || exit 0",
+    "build": "rm -rf dist && tsc -p tsconfig.json",
+    "prepack": "npm run build",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.test.json",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run format:check && npm run typecheck && npm run lint && npm test && npm run build"
+  },
+  "peerDependencies": {
+    "@eslint/js": ">=10",
+    "@modelcontextprotocol/node": "^2.0.0",
+    "@modelcontextprotocol/server": "^2.0.0",
+    "eslint": ">=10",
+    "typescript-eslint": "^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@eslint/js": {
+      "optional": true
+    },
+    "eslint": {
+      "optional": true
+    },
+    "typescript-eslint": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@modelcontextprotocol/client": "^2.4.0",
+    "@modelcontextprotocol/node": "^2.1.2",
+    "@modelcontextprotocol/server": "^2.4.0",
+    "@types/node": "^26.5.1",
+    "eslint": "^10.10.0",
+    "prettier": "^3.9.6",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "typescript-eslint": "^8.70.0",
+    "vitest": "^5.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
