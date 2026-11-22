@@ -16,7 +16,7 @@ an internal network. Everything each such server used to copy lives here:
 - **Logging** to stderr, its level set by a variable of the project's choosing.
 - **Job-run reporting**: a server's internal timer reports each run to the gateway, which can then
   notice a timer that stopped.
-- The **ESLint config**, **test setup** (offline guard, coverage), **base tsconfig** and **CI workflow** these projects share.
+- The **ESLint config**, **test setup** (offline guard, coverage), **Knip config**, **base tsconfig** and **CI workflow** these projects share.
 
 It is deliberately opinionated: one transport shape, one auth scheme. If your server faces clients directly (OAuth, sessions, SSE streams), use the MCP SDK on its own.
 
@@ -119,8 +119,9 @@ export default mcpProjectConfig({ root: import.meta.dirname });
 
 Typed `strict` and `stylistic` rules, `regexp`, `vitest` on `tests/`, exhaustive `switch`, no
 nullish value interpolated into text, no write to `process.stdout` from `src/` (it carries the
-protocol on stdio). `limits: true` (or `{ complexity, depth, functionLines, fileLines }`) caps the
-size of the sources. Spread the result and add the project's own blocks after it.
+protocol on stdio), and caps on the size of the sources (complexity 20, depth 4, 80 lines per
+function, 300 per file): `limits: { … }` changes some of them, `limits: false` drops them. Spread
+the result and add the project's own blocks after it.
 
 `vitest.config.ts` (with `vitest`, and `@vitest/coverage-v8` for coverage):
 
@@ -138,6 +139,18 @@ upstream fails instead of calling the real service. `unsetEnv` removes the devel
 credentials before each test file. `vitest run --coverage` checks the floor (report in
 `coverage/`). Extra settings go through `mergeConfig`; without the factory, the guard alone is
 `setupFiles: ["@m-d-b-code/mcp-kit/offline"]`.
+
+`knip.config.ts` (with `knip`), to find unused files, exports and dependencies:
+
+```ts
+import { mcpKnipConfig } from "@m-d-b-code/mcp-kit/knip";
+
+export default mcpKnipConfig();
+```
+
+Sources in `src/` and `tests/`, entries found by knip itself (`package.json` scripts such as
+`serve`, configs, tests), types exported next to the function that takes them left alone.
+`entry`, `ignore` and `ignoreDependencies` add the project's own. Add `knip` to `npm run check`.
 
 `.github/workflows/ci.yml` (runs `npm ci` then `npm run check`):
 

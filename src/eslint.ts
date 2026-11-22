@@ -25,8 +25,8 @@ export interface LintOptions {
   /** The tsconfig that covers sources and tests alike. */
   project?: string;
   /**
-   * Caps on the size of the sources (`src/`), off by default. `true` takes the defaults
-   * (complexity 20, depth 4, 80 lines per function, 300 per file).
+   * Caps on the size of the sources (`src/`), on by default (complexity 20, depth 4, 80 lines
+   * per function, 300 per file). An object changes some of them, `false` turns them off.
    */
   limits?: boolean | SizeLimits;
 }
@@ -56,7 +56,7 @@ function sizeRules(limits: LintOptions["limits"]): Linter.RulesRecord {
 export function mcpProjectConfig({
   root,
   project = "./tsconfig.test.json",
-  limits = false,
+  limits = true,
 }: LintOptions): ReturnType<typeof defineConfig> {
   return defineConfig(
     { ignores: ["dist/**", "node_modules/**", "coverage/**"] },

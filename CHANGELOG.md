@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0
+
+Breaking for lint: a project that did not pass `limits` gets new findings to fix.
+
+- `limits` is on by default in `/eslint` (complexity 20, depth 4, 80 lines per function, 300 per
+  file). `limits: false` turns the caps off.
+- `/knip`: `mcpKnipConfig` for `knip.config.ts` (sources in `src/` and `tests/`, types
+  exported next to their function ignored, `entry` / `ignore` / `ignoreDependencies`). `knip`
+  becomes an (optional) peer dependency. The kit runs it on itself in `npm run check`.
+
 ## 0.3.3
 
 - Built without source maps: the published files no longer point to maps the package does not
