@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.0
+
+Breaking for lint: projects get new findings to fix.
+
+- `/eslint` is stricter: `stylisticTypeChecked`, `eslint-plugin-regexp`, `@vitest/eslint-plugin` on
+  tests, `switch-exhaustiveness-check`, `consistent-type-imports`, `prefer-nullish-coalescing`
+  (strings excepted), `restrict-template-expressions` with numbers only, `curly`,
+  `no-param-reassign`, `no-else-return`, `object-shorthand`, `prefer-template`,
+  `array-callback-return`, `radix`, and no `process.stdout` in `src/`. `eslint-plugin-regexp`
+  and `@vitest/eslint-plugin` become (optional) peer dependencies.
+- `limits` option: opt-in caps on complexity, depth, function and file length.
+- `/vitest`: `mcpVitestConfig` (tests in `tests/`, offline guard, v8 coverage of `src/`,
+  `thresholds`, `coverageExclude`, `unsetEnv`).
+- `/offline`: the setup file that refuses any `fetch` outside the loopback.
+
 ## 0.2.1
 
 - `listen` waits for an asynchronous `onShutdown` before exiting, instead of exiting while it

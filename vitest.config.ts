@@ -1,5 +1,4 @@
-import { defineConfig } from "vitest/config";
+// The kit tests itself with the config it exports, offline guard included.
+import { mcpVitestConfig } from "./src/vitest.js";
 
-export default defineConfig({
-  test: { include: ["tests/**/*.test.ts"], environment: "node" },
-});
+export default mcpVitestConfig({ unsetEnv: ["MCP_KIT_TEST_SECRET"] });

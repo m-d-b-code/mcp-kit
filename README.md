@@ -16,7 +16,7 @@ an internal network. Everything each such server used to copy lives here:
 - **Logging** to stderr, its level set by a variable of the project's choosing.
 - **Job-run reporting**: a server's internal timer reports each run to the gateway, which can then
   notice a timer that stopped.
-- The **ESLint config**, **base tsconfig** and **CI workflow** these projects share.
+- The **ESLint config**, **test setup** (offline guard, coverage), **base tsconfig** and **CI workflow** these projects share.
 
 It is deliberately opinionated: one transport shape, one auth scheme. If your server faces clients directly (OAuth, sessions, SSE streams), use the MCP SDK on its own.
 
@@ -108,13 +108,36 @@ validates the body with `parseJobRun` from `/protocol`.
 { "extends": "@m-d-b-code/mcp-kit/tsconfig.json" }
 ```
 
-`eslint.config.js` (with `eslint`, `@eslint/js` and `typescript-eslint` as dev dependencies):
+`eslint.config.js` (with `eslint`, `@eslint/js`, `typescript-eslint`, `eslint-plugin-regexp` and
+`@vitest/eslint-plugin` as dev dependencies):
 
 ```js
 import { mcpProjectConfig } from "@m-d-b-code/mcp-kit/eslint";
 
 export default mcpProjectConfig({ root: import.meta.dirname });
 ```
+
+Typed `strict` and `stylistic` rules, `regexp`, `vitest` on `tests/`, exhaustive `switch`, no
+nullish value interpolated into text, no write to `process.stdout` from `src/` (it carries the
+protocol on stdio). `limits: true` (or `{ complexity, depth, functionLines, fileLines }`) caps the
+size of the sources. Spread the result and add the project's own blocks after it.
+
+`vitest.config.ts` (with `vitest`, and `@vitest/coverage-v8` for coverage):
+
+```ts
+import { mcpVitestConfig } from "@m-d-b-code/mcp-kit/vitest";
+
+export default mcpVitestConfig({
+  thresholds: { statements: 90, branches: 80, functions: 90, lines: 90 },
+  unsetEnv: ["DEMO_API_KEY"],
+});
+```
+
+Tests run offline: `fetch` refuses any host but the loopback, so a test that forgot its fake
+upstream fails instead of calling the real service. `unsetEnv` removes the developer's
+credentials before each test file. `vitest run --coverage` checks the floor (report in
+`coverage/`). Extra settings go through `mergeConfig`; without the factory, the guard alone is
+`setupFiles: ["@m-d-b-code/mcp-kit/offline"]`.
 
 `.github/workflows/ci.yml` (runs `npm ci` then `npm run check`):
 

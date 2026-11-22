@@ -1,7 +1,7 @@
 {
   "name": "@m-d-b-code/mcp-kit",
   "version": "0.2.1",
-  "description": "Shared foundation for MCP servers behind a gateway: authenticated stateless HTTP transport, env config, logging and job-run reporting",
+  "description": "Shared foundation for MCP servers behind a gateway: authenticated stateless HTTP transport, env config, logging and job-run reporting, plus shared lint and test setup",
   "keywords": [
     "mcp",
     "model-context-protocol",
@@ -41,6 +41,14 @@
       "types": "./dist/eslint.d.ts",
       "default": "./dist/eslint.js"
     },
+    "./vitest": {
+      "types": "./dist/vitest.d.ts",
+      "default": "./dist/vitest.js"
+    },
+    "./offline": {
+      "types": "./dist/offline.d.ts",
+      "default": "./dist/offline.js"
+    },
     "./tsconfig.json": "./tsconfig.base.json"
   },
   "scripts": {
@@ -58,17 +66,29 @@
     "@eslint/js": ">=10",
     "@modelcontextprotocol/node": "^2.0.0",
     "@modelcontextprotocol/server": "^2.0.0",
+    "@vitest/eslint-plugin": "^1.6.0",
     "eslint": ">=10",
-    "typescript-eslint": "^8.0.0"
+    "eslint-plugin-regexp": "^3.0.0",
+    "typescript-eslint": "^8.0.0",
+    "vitest": ">=5"
   },
   "peerDependenciesMeta": {
     "@eslint/js": {
       "optional": true
     },
+    "@vitest/eslint-plugin": {
+      "optional": true
+    },
     "eslint": {
       "optional": true
     },
+    "eslint-plugin-regexp": {
+      "optional": true
+    },
     "typescript-eslint": {
+      "optional": true
+    },
+    "vitest": {
       "optional": true
     }
   },
@@ -78,7 +98,10 @@
     "@modelcontextprotocol/node": "^2.1.2",
     "@modelcontextprotocol/server": "^2.4.0",
     "@types/node": "^26.5.1",
+    "@vitest/coverage-v8": "^5.1.1",
+    "@vitest/eslint-plugin": "^1.6.28",
     "eslint": "^10.10.0",
+    "eslint-plugin-regexp": "^3.3.3",
     "prettier": "^3.9.6",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "typescript-eslint": "^8.70.0",
