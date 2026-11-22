@@ -17,3 +17,10 @@ jobs:
   # The kit runs the very workflow it offers, so a broken one shows here first.
   check:
     uses: ./.github/workflows/mcp-project.yml
+    # The maintainer's self-hosted Renovate reads commit statuses, not check runs: this is what it
+    # waits for before merging a renovate/** branch.
+    with:
+      commit-status: ci
+    permissions:
+      contents: read
+      statuses: write
