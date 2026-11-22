@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+First release published from CI through npm trusted publishing, with provenance. No code
+change.
+
 ## 0.1.0
 
 First release: `createBridgeServer` (2025-era clients served unless `legacy: "reject"`), `listen`, `runMain`, `isEntryPoint`, configuration readers,
