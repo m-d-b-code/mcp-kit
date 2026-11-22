@@ -22,6 +22,12 @@ export interface BridgeServerOptions {
   buildServer: ServerFactory;
   /** Raise it only for a tool that takes a document as argument. */
   maxBodyBytes?: number;
+  /**
+   * 2025-era clients: `"stateless"` (the default) still serves them, one stateless exchange per
+   * request; `"reject"` answers them with the unsupported-version error, so that only
+   * `PROTOCOL_VERSION` is spoken.
+   */
+  legacy?: "stateless" | "reject";
   log?: Logger;
 }
 
@@ -74,11 +80,11 @@ export function createBridgeServer({
   token,
   buildServer,
   maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
+  legacy = "stateless",
   log = loggerFactory()("http"),
 }: BridgeServerOptions): Server {
   const onerror = (err: Error) => log.error("MCP request failed", err);
-  // Strictly the pinned revision: the gateway speaks nothing else.
-  const mcp = createMcpHandler(buildServer, { legacy: "reject", responseMode: "json", onerror });
+  const mcp = createMcpHandler(buildServer, { legacy, responseMode: "json", onerror });
   const handler = toNodeHandler(mcp, { onerror });
 
   const server = createServer((request, response) => {

@@ -1,8 +1,7 @@
 # mcp-kit
 
 Public npm package `@m-d-b-code/mcp-kit`: the shared foundation of MCP servers reached through a
-gateway (authenticated HTTP transport, pinned protocol revision, config, logging, job-run
-reporting), plus their ESLint config, base tsconfig and reusable CI workflow. `CLAUDE.md` only
+gateway (authenticated HTTP transport, config, logging, job-run reporting), plus their ESLint config, base tsconfig and reusable CI workflow. `CLAUDE.md` only
 imports this file.
 
 ## Rules

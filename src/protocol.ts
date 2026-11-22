@@ -4,7 +4,7 @@
 /** Header carrying the shared secret. Neutral name: a generic bridge has no business knowing the project's. */
 export const TOKEN_HEADER = "x-mcp-token";
 
-/** The only protocol revision spoken on the bridge, with no fallback on either side. */
+/** The current protocol revision: what a gateway pins, and all a server speaks with `legacy: "reject"`. */
 export const PROTOCOL_VERSION = "2026-07-28";
 
 export const MCP_PATH = "/mcp";

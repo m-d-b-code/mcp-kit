@@ -30,13 +30,10 @@ function buildServer(): McpServer {
   return server;
 }
 
-async function listening(maxBodyBytes?: number): Promise<string> {
-  const server = createBridgeServer({
-    token: TOKEN,
-    buildServer,
-    log: silent,
-    ...(maxBodyBytes !== undefined && { maxBodyBytes }),
-  });
+async function listening(
+  options: { maxBodyBytes?: number; legacy?: "stateless" | "reject" } = {},
+): Promise<string> {
+  const server = createBridgeServer({ token: TOKEN, buildServer, log: silent, ...options });
   await new Promise<void>((done) => server.listen(0, "127.0.0.1", done));
   opened.push(() => new Promise((done) => server.close(() => done())));
   return `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
@@ -95,29 +92,30 @@ describe("bridge server", () => {
     expect(result.content).toEqual([{ type: "text", text: "pong" }]);
   });
 
-  it("refuses a 2025 client: the bridge has no fallback", async () => {
-    const base = await listening();
-    const response = await post(
-      base,
-      JSON.stringify({
-        jsonrpc: "2.0",
-        id: 1,
-        method: "initialize",
-        params: {
-          protocolVersion: "2025-06-18",
-          capabilities: {},
-          clientInfo: { name: "old", version: "1.0.0" },
-        },
-      }),
-    );
-    expect(response.status).toBe(400);
-    expect(await response.json()).toMatchObject({
+  it("serves a 2025 client by default, and refuses it in strict mode", async () => {
+    const initialize = JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-06-18",
+        capabilities: {},
+        clientInfo: { name: "old", version: "1.0.0" },
+      },
+    });
+    const served = await post(await listening(), initialize);
+    expect(served.status).toBe(200);
+    expect(await served.text()).toContain('"protocolVersion":"2025-06-18"');
+
+    const refused = await post(await listening({ legacy: "reject" }), initialize);
+    expect(refused.status).toBe(400);
+    expect(await refused.json()).toMatchObject({
       error: { data: { supported: [PROTOCOL_VERSION] } },
     });
   });
 
   it("bounds the body and rejects what is not JSON", async () => {
-    const base = await listening(1024);
+    const base = await listening({ maxBodyBytes: 1024 });
     const big = await post(base, JSON.stringify({ pad: "x".repeat(2048) }));
     expect(big.status).toBe(413);
     expect(await big.json()).toEqual({ error: "Request body too large." });

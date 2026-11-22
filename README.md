@@ -10,16 +10,16 @@ an internal network. Everything each such server used to copy lives here:
 - **HTTP transport**: `/mcp` behind a shared secret (`x-mcp-token` header, constant-time
   comparison), `/health` without one for the container healthcheck, a bounded request body (64 KiB
   by default), clean shutdown on `SIGTERM`. Stateless, JSON responses, one `McpServer` per request.
-- **A pinned protocol revision**: `2026-07-28` only, no fallback to the 2025 revisions — on the
-  server and, through `/protocol`, on the gateway.
+- **Protocol revisions**: `2026-07-28`, with 2025-era clients still served statelessly unless
+  `legacy: "reject"` makes the server modern-only. The gateway can pin the same revision through
+  `/protocol`.
 - **Configuration** read from the environment: a clear error at startup, never a degraded mode.
 - **Logging** to stderr, its level set by a variable of the project's choosing.
 - **Job-run reporting**: a server's internal timer reports each run to the gateway, which can then
   notice a timer that stopped.
 - The **ESLint config**, **base tsconfig** and **CI workflow** these projects share.
 
-It is deliberately opinionated: one transport shape, one auth scheme, one protocol revision. If
-your server faces clients directly (OAuth, sessions, SSE streams), use the MCP SDK on its own.
+It is deliberately opinionated: one transport shape, one auth scheme. If your server faces clients directly (OAuth, sessions, SSE streams), use the MCP SDK on its own.
 
 ## Install
 
@@ -63,8 +63,9 @@ if (isEntryPoint(import.meta.url)) await runMain(main, log);
 
 A `ConfigError` thrown by `main` becomes one log line and exit code 2. `readToken`,
 `readInteger` and `readOptional` read the project's own variables. `listen` takes an
-`onShutdown` callback to close stores and timers; `createBridgeServer` takes `maxBodyBytes` for
-tools that receive whole documents as arguments.
+`onShutdown` callback to close stores and timers. `createBridgeServer` takes `maxBodyBytes` for
+tools that receive whole documents as arguments, and `legacy: "reject"` to refuse 2025-era clients
+when the gateway only speaks `PROTOCOL_VERSION`.
 
 ## Gateway side
 

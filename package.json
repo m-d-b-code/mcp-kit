@@ -1,7 +1,7 @@
 {
   "name": "@m-d-b-code/mcp-kit",
   "version": "0.1.0",
-  "description": "Shared foundation for MCP servers behind a gateway: authenticated stateless HTTP transport, pinned protocol revision, env config, logging and job-run reporting",
+  "description": "Shared foundation for MCP servers behind a gateway: authenticated stateless HTTP transport, env config, logging and job-run reporting",
   "keywords": [
     "mcp",
     "model-context-protocol",
