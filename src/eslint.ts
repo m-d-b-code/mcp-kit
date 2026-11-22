@@ -84,9 +84,10 @@ export function mcpProjectConfig({
           },
         ],
         // `||` on a string is meant: an empty string calls for the fallback as much as absence.
+        // On an optional flag, `flag || other` is plain logic, not a default value.
         "@typescript-eslint/prefer-nullish-coalescing": [
           "error",
-          { ignorePrimitives: { string: true } },
+          { ignorePrimitives: { string: true, boolean: true } },
         ],
         "@typescript-eslint/switch-exhaustiveness-check": "error",
         "@typescript-eslint/consistent-type-imports": ["error", { disallowTypeAnnotations: false }],

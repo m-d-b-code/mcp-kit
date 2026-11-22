@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1
+
+- `prefer-nullish-coalescing` leaves optional booleans alone: `flag || other` is logic, not a
+  default value.
+
 ## 0.3.0
 
 Breaking for lint: projects get new findings to fix.
