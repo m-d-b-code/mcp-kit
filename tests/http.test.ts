@@ -31,7 +31,7 @@ function buildServer(): McpServer {
 }
 
 async function listening(
-  options: { maxBodyBytes?: number; legacy?: "stateless" | "reject" } = {},
+  options: Partial<Parameters<typeof createBridgeServer>[0]> = {},
 ): Promise<string> {
   const server = createBridgeServer({ token: TOKEN, buildServer, log: silent, ...options });
   await new Promise<void>((done) => server.listen(0, "127.0.0.1", done));
@@ -112,6 +112,27 @@ describe("bridge server", () => {
     expect(await refused.json()).toMatchObject({
       error: { data: { supported: [PROTOCOL_VERSION] } },
     });
+  });
+
+  it("serves the project's routes behind the token", async () => {
+    const base = await listening({
+      routes: {
+        "/status": () => Promise.resolve({ checkin: "done" }),
+        "/broken": () => {
+          throw new Error("boom");
+        },
+      },
+    });
+    const get = (path: string, token = TOKEN) =>
+      fetch(`${base}${path}`, { headers: { [TOKEN_HEADER]: token } });
+    expect((await get("/status", "y".repeat(32))).status).toBe(401);
+    const status = await get("/status?fresh=1");
+    expect(status.status).toBe(200);
+    expect(await status.json()).toEqual({ checkin: "done" });
+    const broken = await get("/broken");
+    expect(broken.status).toBe(500);
+    expect(await broken.json()).toEqual({ error: "Internal error." });
+    expect((await get("/toString")).status).toBe(404);
   });
 
   it("bounds the body and rejects what is not JSON", async () => {

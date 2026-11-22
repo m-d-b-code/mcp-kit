@@ -17,6 +17,9 @@ export type ServerFactory = Parameters<typeof createMcpHandler>[0];
 
 export const DEFAULT_MAX_BODY_BYTES = 64 * 1024;
 
+/** Answers an extra path with a JSON body; a throw becomes a 500 and a log line. */
+export type RouteHandler = (request: IncomingMessage) => unknown;
+
 export interface BridgeServerOptions {
   token: string;
   buildServer: ServerFactory;
@@ -28,6 +31,12 @@ export interface BridgeServerOptions {
    * `PROTOCOL_VERSION` is spoken.
    */
   legacy?: "stateless" | "reject";
+  /**
+   * Extra paths behind the same token as `/mcp`, answered with what their handler returns as
+   * JSON: an operator's view of the server's own state, for instance. `/mcp` and `/health` cannot
+   * be overridden.
+   */
+  routes?: Record<string, RouteHandler>;
   log?: Logger;
 }
 
@@ -73,7 +82,7 @@ async function readBody(request: IncomingMessage, maxBytes: number): Promise<unk
 }
 
 /**
- * `/health` without a token, `/mcp` behind `x-mcp-token`, nothing else. `/health` says nothing
+ * `/health` without a token, `/mcp` and the project's `routes` behind `x-mcp-token`, nothing else. `/health` says nothing
  * about the project's upstreams: their outage must not get a healthy server restarted.
  */
 export function createBridgeServer({
@@ -81,6 +90,7 @@ export function createBridgeServer({
   buildServer,
   maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
   legacy = "stateless",
+  routes = {},
   log = loggerFactory()("http"),
 }: BridgeServerOptions): Server {
   const onerror = (err: Error) => log.error("MCP request failed", err);
@@ -88,18 +98,31 @@ export function createBridgeServer({
   const handler = toNodeHandler(mcp, { onerror });
 
   const server = createServer((request, response) => {
-    const path = (request.url ?? "").split("?")[0];
+    const path = (request.url ?? "").split("?")[0] ?? "";
     if (path === HEALTH_PATH) {
       send(response, 200, { status: "ok" });
       return;
     }
-    if (path !== MCP_PATH) {
+    const route = path !== MCP_PATH && Object.hasOwn(routes, path) ? routes[path] : undefined;
+    if (path !== MCP_PATH && !route) {
       send(response, 404, { error: "Unknown path." });
       return;
     }
     const presented = request.headers[TOKEN_HEADER];
     if (!sameSecret(typeof presented === "string" ? presented : "", token)) {
       send(response, 401, { error: "Missing or invalid authentication header." });
+      return;
+    }
+    if (route) {
+      Promise.resolve()
+        .then(() => route(request))
+        .then(
+          (body) => send(response, 200, body),
+          (err: unknown) => {
+            log.error(`${path} failed`, err);
+            send(response, 500, { error: "Internal error." });
+          },
+        );
       return;
     }
     readBody(request, maxBodyBytes)

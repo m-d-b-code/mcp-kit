@@ -63,8 +63,13 @@ if (isEntryPoint(import.meta.url)) await runMain(main, log);
 A `ConfigError` thrown by `main` becomes one log line and exit code 2. `readToken`,
 `readInteger` and `readOptional` read the project's own variables. `listen` takes an
 `onShutdown` callback to close stores and timers. `createBridgeServer` takes `maxBodyBytes` for
-tools that receive whole documents as arguments, and `legacy: "reject"` to refuse 2025-era clients
-when the gateway only speaks `PROTOCOL_VERSION`.
+tools that receive whole documents as arguments, `legacy: "reject"` to refuse 2025-era clients
+when the gateway only speaks `PROTOCOL_VERSION`, and `routes` for extra JSON paths behind the
+same token (an operator's status page, say):
+
+```ts
+createBridgeServer({ token, buildServer, routes: { "/status": () => store.status() } });
+```
 
 ## Gateway side
 

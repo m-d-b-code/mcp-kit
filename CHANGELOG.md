@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0
+
+- `createBridgeServer` takes `routes`: extra paths behind the same token as `/mcp`, answered
+  as JSON with what their handler returns (a throw gives a 500 and a log line).
+- CI reports the `ci` commit status on Renovate branches.
+
 ## 0.1.1
 
 First release published from CI through npm trusted publishing, with provenance. No code
