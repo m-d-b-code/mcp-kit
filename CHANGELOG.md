@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1
+
+- `mcp-project.yml` no longer caps the job's permissions at `contents: read`: `commit-status`
+  failed with a 403, since the `statuses: write` granted by the caller never reached the job. The
+  caller's `permissions` now apply as written.
+
 ## 0.4.0
 
 Breaking for lint: a project that did not pass `limits` gets new findings to fix.

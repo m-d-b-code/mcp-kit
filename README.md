@@ -158,10 +158,13 @@ Sources in `src/` and `tests/`, entries found by knip itself (`package.json` scr
 jobs:
   check:
     uses: m-d-b-code/mcp-kit/.github/workflows/mcp-project.yml@<sha> # vX.Y.Z
+    permissions:
+      contents: read
 ```
 
-Optional inputs: `node-version`, and `commit-status` to also report the result as a commit
-status (see the workflow file).
+The job runs with the permissions the caller grants it. Optional inputs: `node-version`, and
+`commit-status` to also report the result as a commit status, which needs `statuses: write`
+next to `contents: read`.
 
 ## Versioning
 

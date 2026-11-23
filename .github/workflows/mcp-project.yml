@@ -25,8 +25,8 @@ on:
         type: string
         default: "renovate/"
 
-permissions:
-  contents: read
+# No `permissions` here: a called workflow can only lower what its caller grants, so a block here
+# stripped the `statuses: write` that `commit-status` needs. The caller sets the job's permissions.
 
 jobs:
   check:
